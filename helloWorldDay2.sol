@@ -2,7 +2,7 @@ pragma solidity 0.5.12;
 
 contract HelloWorld{
     
-//struct
+    //struct
     struct Person {
         string name;
         uint age;
@@ -10,30 +10,35 @@ contract HelloWorld{
         bool senior;
     }
     
-//event
+    //event
     event personCreated(string name, bool senior);
     event personDeleted(string name, bool senior, address deletedBy);
-    event personUpdated(string name, uint age, uint height, bool senior);
+    event personOriginal(string name, uint age, uint height, bool senior);
+    event personChanged(string name, uint age, uint height, bool senior);
     
-//this is a variable
+    //this is a variable
     address public owner;
     
-//modifier, in the modifer the _; signles the end of the modifier and to continue with the rest of the function 
+    //modifier, in the modifer the _; signles the end of the modifier and to continue with the rest of the function 
     modifier onlyOwner(){
         require(msg.sender == owner);
         _;
     }
+    modifier getOriginalPerson(){
+        getPerson();
+        _;
+    }
     
-//constructor
+    //constructor
     //constructors will only be called once and that is when the contract it created
     constructor() public{
         owner = msg.sender;
     }
     
-//mapping
+    //mapping
     mapping(address => Person) private people;
     
-//array
+    //array
     address[] private creators;
     
     function createPerson(string memory name, uint age, uint height) public {
@@ -74,7 +79,7 @@ contract HelloWorld{
             emit personCreated(newPerson.name, newPerson.senior);
     }
     
-//private function because it helps to avoid one function from doing too many things and this function does not need to be accessed outside of the contract    
+    //private function because it helps to avoid one function from doing too many things and this function does not need to be accessed outside of the contract    
     function insertPerson(Person memory newPerson) private {
             
             address creator = msg.sender; 
@@ -104,26 +109,29 @@ contract HelloWorld{
         return creators[index];
     }
 
-    function updatePerson(address creator, string memory name, uint age, uint height) public {
+    function updatePerson(address creator, string memory name, uint age, uint height) public getOriginalPerson {
+        
+       
+    
+        emit personOriginal(people[creator].name, people[creator].age, people[creator].height, people[creator].senior);
                 require(age <= 150, "Age needs to be below 150");
                 
                 
                 delete people[creator];
         
-        Person memory updatePerson;
-        updatePerson.name = name;
-        updatePerson.age = age;
-        updatePerson.height = height;
+        Person memory personUpdated;
+        personUpdated.name = name;
+        personUpdated.age = age;
+        personUpdated.height = height;
         if(age >= 65){
-            updatePerson.senior = true;
+            personUpdated.senior = true;
         } 
         else {
-            updatePerson.senior = false;
+            personUpdated.senior = false;
         } 
         
-        insertPerson(updatePerson);
+        insertPerson(personUpdated);
         creators.push(msg.sender);
-        //below is checking people[msg.sender] == newPerson, solidity must hash this in order to assert
         assert(
             keccak256(
                 abi.encodePacked(
@@ -133,23 +141,15 @@ contract HelloWorld{
                     people[msg.sender].senior
             )) == keccak256(
                 abi.encodePacked(
-                    updatePerson.name, 
-                    updatePerson.age, 
-                    updatePerson.height, 
-                    updatePerson.senior
+                    personUpdated.name, 
+                    personUpdated.age, 
+                    personUpdated.height, 
+                    personUpdated.senior
                     )
                 )
             );
-            //event the function will be sending
-            emit personUpdated(updatePerson.name, updatePerson.age, updatePerson.height, updatePerson.senior);
+            emit personChanged(personUpdated.name, personUpdated.age, personUpdated.height, personUpdated.senior);
     }
-    
-        function insertUpdate(Person memory updatePerson) private {
-            
-            address creator = msg.sender; 
-            people[creator] = updatePerson;   
-    }
-    
     
     
 }
