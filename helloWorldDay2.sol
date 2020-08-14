@@ -14,7 +14,16 @@ contract HelloWorld{
     event personCreated(string name, bool senior);
     event personDeleted(string name, bool senior, address deletedBy);
     event personOriginal(string name, uint age, uint height, bool senior);
-    event personChanged(string name, uint age, uint height, bool senior);
+    event personChanged(
+                        string _name, 
+                        uint _age, 
+                        uint _height, 
+                        bool _senior,
+                        string name, 
+                        uint age, 
+                        uint height, 
+                        bool senior
+                        );
     
     //this is a variable
     address public owner;
@@ -22,10 +31,6 @@ contract HelloWorld{
     //modifier, in the modifer the _; signles the end of the modifier and to continue with the rest of the function 
     modifier onlyOwner(){
         require(msg.sender == owner);
-        _;
-    }
-    modifier getOriginalPerson(){
-        getPerson();
         _;
     }
     
@@ -109,15 +114,13 @@ contract HelloWorld{
         return creators[index];
     }
 
-    function updatePerson(address creator, string memory name, uint age, uint height) public getOriginalPerson {
+    function updatePerson(address creator, string memory name, uint age, uint height) public {
         
        
     
         emit personOriginal(people[creator].name, people[creator].age, people[creator].height, people[creator].senior);
                 require(age <= 150, "Age needs to be below 150");
                 
-                
-                delete people[creator];
         
         Person memory personUpdated;
         personUpdated.name = name;
@@ -132,6 +135,7 @@ contract HelloWorld{
         
         insertPerson(personUpdated);
         creators.push(msg.sender);
+        //below is checking people[msg.sender] == newPerson, solidity must hash this in order to assert
         assert(
             keccak256(
                 abi.encodePacked(
@@ -148,7 +152,17 @@ contract HelloWorld{
                     )
                 )
             );
-            emit personChanged(personUpdated.name, personUpdated.age, personUpdated.height, personUpdated.senior);
+            //event the function will be sending
+            emit personChanged(                    
+                                people[creator].name, 
+                                people[creator].age, 
+                                people[creator].height, 
+                                people[creator].senior,
+                                personUpdated.name, 
+                                personUpdated.age, 
+                                personUpdated.height, 
+                                personUpdated.senior
+                                );
     }
     
     
