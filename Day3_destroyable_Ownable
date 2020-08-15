@@ -1,0 +1,23 @@
+pragma solidity 0.5.12;
+
+contract Ownable{
+    
+    //variable
+    //~~~~~~visiability - public(all can see), internal(only contract can see but derived contract can reference), private (only available on contract)
+    address internal owner;
+    
+    
+    
+    modifier onlyOwner(){
+        require(msg.sender == owner);
+        _;
+    }
+    
+    
+    //constructor
+    //constructors will only be called once and that is when the contract it created
+    constructor() public{
+        owner = msg.sender;
+    }
+    
+}
