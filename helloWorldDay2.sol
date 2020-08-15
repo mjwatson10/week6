@@ -116,9 +116,6 @@ contract HelloWorld{
 
     function updatePerson(address creator, string memory name, uint age, uint height) public {
         
-       
-    
-        emit personOriginal(people[creator].name, people[creator].age, people[creator].height, people[creator].senior);
                 require(age <= 150, "Age needs to be below 150");
                 
         
@@ -133,8 +130,21 @@ contract HelloWorld{
             personUpdated.senior = false;
         } 
         
+                     //event the function will be sending
+            emit personChanged(                    
+                                people[creator].name, 
+                                people[creator].age, 
+                                people[creator].height, 
+                                people[creator].senior,
+                                personUpdated.name, 
+                                personUpdated.age, 
+                                personUpdated.height, 
+                                personUpdated.senior
+                                );
+        
         insertPerson(personUpdated);
         creators.push(msg.sender);
+        
         //below is checking people[msg.sender] == newPerson, solidity must hash this in order to assert
         assert(
             keccak256(
@@ -152,17 +162,6 @@ contract HelloWorld{
                     )
                 )
             );
-            //event the function will be sending
-            emit personChanged(                    
-                                people[creator].name, 
-                                people[creator].age, 
-                                people[creator].height, 
-                                people[creator].senior,
-                                personUpdated.name, 
-                                personUpdated.age, 
-                                personUpdated.height, 
-                                personUpdated.senior
-                                );
     }
     
     
