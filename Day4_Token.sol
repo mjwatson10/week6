@@ -1,8 +1,13 @@
 pragma solidity 0.5.12;
 import "./Day3_Ownable.sol";
+import "../Safemath.sol";
 
 
-contract ERC20 is Ownable {
+contract ERC20 is Ownable{
+    
+    
+    //this gets access the the library Safemath.sol
+    using SafeMath for uint256;
     
     
     //variables that are private usually have _ in front of it to specify that they are private
@@ -31,7 +36,7 @@ contract ERC20 is Ownable {
 
     }
 
-    function decimals() public view returns (uint8) {
+    function decimals() public view returns (uint256) {
         return _decimals;
 
     }
@@ -51,9 +56,9 @@ contract ERC20 is Ownable {
         require(account != address(0));
         
         //increasing total supply by amount being minted
-        _totalSupply += amount;
+        _totalSupply = _totalSupply.add(amount);
         //increasing account balance by amount minted
-        _balances[account] = _balances[account] + amount;
+        _balances[account] = _balances[account].add(amount);
 
     }
 
@@ -62,10 +67,10 @@ contract ERC20 is Ownable {
         require(_balances[msg.sender] >= amount);
         
         //amount being sent to recipient needs to be taken out of msg.sender's balance
-        _balances[msg.sender] = _balances[msg.sender] - amount;
+        _balances[msg.sender] = _balances[msg.sender].sub(amount);
         
         //amount being sent from msg.sender needs to be added to recipient's balance
-        _balances[recipient] = _balances[recipient] + amount;
+        _balances[recipient] = _balances[recipient].add(amount);
         
         return true;
     }
